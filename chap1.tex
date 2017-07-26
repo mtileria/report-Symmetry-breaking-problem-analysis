@@ -1,3 +1,6 @@
+\section{Introduction}
+\label{cap:1}
+
  One of the central problem in distributed computing is called Symmetry Breaking. This problem occurs when all processors in a network are in the same state, possibly with an ID to be uniquely identified. This state of symmetry should be broken before beginning any computation. Some examples of symmetry breaking problems are computing the maximal independent sets \textit{(MIS)} , maximal matching, vertex colouring, ruling sets and leader election. This project studies the problem of finding the maximal independent set on an undirected graph using the local model \cite{linial1992locality}.
 
 In the local model, each node of the graph is occupied by a processor and has a unique identifier ID. The processors only communicate with each other by sending messages, there is no notion of shared memory. Locality in distributed networks means that in order to obtain the solution of a general problem, a process only uses locally available data. Computation is assumed to be reliable and synchronous. No faulty processors are permitted in this model and every processor executes the local algorithm in steps call rounds.

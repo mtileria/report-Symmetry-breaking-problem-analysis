@@ -6,7 +6,7 @@ Formally, a symmetry system can be defined as a system in which the processes ar
 
 Symmetry breaking is one of the most extensively studied problems in distributed computing. The fundamental problems on graph include the maximal matching, vertex colouring, ruling sets and \textit{MIS}. The last one can be considered as the central problem because all the others can be reduced to it, as shown in  \cite{}.
 
-Next, in this chapter a formal definition of the maximal independent set is given and two algorithms are presented to solve the problem. Besides that, a theoretical analysis about the time and message complexity is described.     
+In the next section, a formal definition of the maximal independent set is given and a discussion on the sequential algorithm vs distributed algorithm is presented. Besides that, a theoretical analysis on time and message complexity is described.     
 
 \subsection{Maximal Independent Set}
 
@@ -37,7 +37,7 @@ Figure \ref{fig:graph1} show an example of undirected graph with 8 nodes and 14 
 \label{fig:mis1}
 \end{figure}
 
-The algorithm \ref{algorithm:secuential-mis} describe a general sequential algorithm to find the maximal independent set of a general graph. The time complexity is $O(N)$. Since in the worst case, the sequential algorithm has to check every node, another approach that improve this time is desirable. In the next section, the distributed approach to solve the \textit{MIS} problem is presented.
+The algorithm \ref{algorithm:secuential-mis} describe a general sequential algorithm to find the maximal independent set of a general graph. The time complexity is $O(N)$ since in the worst case, the algorithm has to check every node. Another approach to improve this time is desirable. In the next section, two distributed approach to solve the \textit{MIS} problem are presented.
 
 \begin{algorithm}
  \caption{Sequential Maximal Independent Set}
@@ -58,6 +58,54 @@ The algorithm \ref{algorithm:secuential-mis} describe a general sequential algor
 
  
 \subsection{Distributed Maximal Independent Set}
-fsdfsdfsdfsdfsd
-\newpage
 
+A logarithmic lower bound is always desirable and the difficulty to find it in sequential algorithms to the \textit{MIS} problem motivate the development of distributed algorithm. In 1986, the first distributed algorithm was proposed independently by Luby \cite{luby1986simple} and Alon \textit{et al.} \cite{alon1986fast}. Both algorithms are randomised and have $O(log N)$ lower bound. Until now, there are faster than the best distributed deterministic algorithms for general graphs. There have been some improvements for special cases, for instance \cite{panconesi1996complexity} propose a $O(\delta + log^* N)$ algorithm, however  the originals algorithm are still faster when $\delta = \omega(log N)$ and if the running time is expressed solely as a function of $N$. It is worth to mention that all algorithms exposed forward are in the synchronous model. 
+
+The algorithm\ref{algorithm:luby-mis} describe the original Luby's algorithm. TO BE COMPLETED ........
+
+
+\begin{algorithm}
+ \caption{Luby's Algorithm, code for each node i = 1 to N}
+ \label{algorithm:luby-mis} 
+
+\SetAlgoLined
+\KwResult{MIS Maximal Independent Set}
+\KwData{ $G(V,E)$ Graph}
+    \While {V is not empty}{
+        Choose a random set of vertices $S ⊆ V$, by selecting each vertex $v$ independently with probability $1/(2d(v))$, where d is the degree of $v$\;
+        For every edge in E, if both its endpoints are in the random set S, then remove from S the endpoint whose degree is lower. Break ties arbitrarily, e.g. using a lexicographic order on the vertex names\;
+        Add the set S to IS\;
+        Remove from V the set S and all the neighbours of nodes in S\;
+        }
+\end{algorithm} 
+
+
+
+
+
+\theoremstyle{theorem}
+\begin{theorem}
+
+Algorithm \ref{algorithm:luby-mis} computes a maximal independent set for any graph  in O(log n) rounds with high probability.
+
+\end{theorem}
+
+
+The algorithm \ref{algorithm:main-mis} was proposed in \cite{yves2009optimal} and it is the one used for the simulations in this project. The correctness of the algorithm it is very intuitive. This algorithm operates in synchronous rounds. In line 2, every process select a random number to in order to break the symmetry with its neighbours, line 3 makes sure that if a vertex v join the MIS, no other neighbour of v join the MIS at the same time, this is true because the execution  occurs in rounds. the line 4 makes sure that any vertex that has a neighbour in the MIS, join the MIS at any point. 
+
+\begin{algorithm}
+ \caption{MIS Algorithm, code for each node from i = 1 to N}
+ \label{algorithm:main-mis} 
+
+\SetAlgoLined
+\KwResult{MIS Maximal Independent Set}
+\KwData{ $G(V,E)$ Graph}
+    \While {V is not empty}{
+        Selects a random number $r(v)$ between [0,1] and sends to its neighbours\;
+        If $r(v) < r(w)$ for all neighbours $w \in N(v)$ numbers, remove myself from V and enter to the MIS \newline
+        Inform my neighbours that I am a MIS member and terminate\;
+        If I heard that my neighbour is MIS, remove myself from the V and terminate\;
+        }
+\end{algorithm}
+
+\newpage
