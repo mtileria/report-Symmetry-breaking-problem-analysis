@@ -1,7 +1,7 @@
 \documentclass[11pt]{article} % do not change this line
 \input{BigDataStyle.txt}      % do not change this line
 \usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,graphicx,caption}
-\usepackage[boxed,ruled,vlined,linesnumbered,dotocloa,english,onelanguage]{algorithm2e}
+\usepackage[boxed,ruled,vlined,dotocloa,english,onelanguage]{algorithm2e}
 \graphicspath{ {pictures/} }
 \emergencystretch=5mm
 \tolerance=400
@@ -18,7 +18,7 @@
 \theoremstyle{definition}
 \newtheorem*{remark}{Remark}
 
-\title{Analysis of Symmetry Breaking Algorithms}
+\title{Analysis of Symmetry Breaking Algorithms on Distributed Synchronous Systems}
 \author{Marcos Tileria}
 
 \newcommand{\Programme}{MSc Distributed and Networked Systems}
@@ -32,29 +32,30 @@
 
 \begin{abstract}
   
-Breaking symmetry is a very well study problem in distributed computing. A distributed system is composed of nodes with an initial state, possibly the same for every node and a set of edges between the nodes. The aim of symmetry breaking is to break the initial state of symmetry between the nodes to perform some computation. Synchronous algorithm provides an easy mechanism to design and study protocols. The objective of this dissertation is to simulate a synchronous message passing system and analyse time and message complexity of the Maximal Independent Set problem, which is one of the most important breaking symmetry problem. To simulate the synchronous message passing system, three types of synchronization techniques are used and an analysis of the trade off between these techniques is presented. A simulator build in Elixir using the actor model was developed to test the MIS algorithm with different synchronizations techniques. TO BE COMPLETE AFTER TESTS 
+ Symmetry Breaking is a very well study problem in distributed computing. A distributed system present a symmetry when all processors share the same state. The aim of symmetry breaking is to break the equal state between the processes to perform some computation. In this project, randomized synchronous algorithm  are used to study this problem. The objective of this dissertation is to analyse time and message complexity of distributed algorithms for the Maximal Independent Set problem, which is one of the most important symmetry breaking problems. Three types of synchronization techniques were used to simulate a synchronous system over an asynchronous message passing system. A simulator develop in the Elixir Actor model was built in order to analyse the problem using different synchronizations techniques. The results of the simulation show that ..... and present the trade off among the synchronization techniques.... blabla 
   
 \end{abstract}
 
 
 
 \input{./chap1.tex}
+\newpage
 
 
 
 \input{./chap2.tex}
+\newpage
 
 \input{./chap3.tex}
+\newpage
 
-
-
-
-\section{Experimental Results}
+\input{./chap4.tex}
+\newpage
+% \input{./chap5.tex}
 
 \section{Conclusion}
 
 \section{Professional Issues}
-
 
 \bibliographystyle{plain}
 \bibliography{bibliography}

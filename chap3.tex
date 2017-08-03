@@ -1,2 +1,112 @@
-\section{Synchronous Simulation}
+\section{Synchronous Distributed Systems}
 \label{chap:3}
+
+A synchronizer is a general technique to simulate synchronous communication by asynchronous systems. Synchronizer was introduced by Awerbuch \cite{awerbuch1985complexity}, in this paper, the author presented 3 different synchronizers and analysed the trade off between them. This technique allows the execution of distributed synchronous algorithm over an asynchronous system, for instance, an asynchronous message passing system. The reason why synchronous algorithms are desirable is that there are usually simpler to design and superior in complexity. 
+
+
+The following model was used in the original paper by Awerbuch \cite{awerbuch1985complexity} and were previously used in \cite{segall1983distributed,gallager1982distributed} among others. The asynchronous system is represented by an undirected graph $G = (V,E)$ where $V$ represent the set of processors and $E$ represent a bi-directional communication channel. Each process sends messages, receive messages and perform some local computation. There is no notion of how long takes messages to arrive the destination but it is assumed to be finite. Another important assumption of the model is that the amount of information carried by messages is limited.
+
+In this model, processes send messages after they receive a pulse or clock. This pulse represents one unit time in the synchronous system. The delay of the messages in one round is one unit of time of the global clock.
+
+\begin{definition}
+\label{def:safe}
+A process $p_i$ is said to be safe in a round only after all its messages has been delivered at their destinations.
+\end{definition}
+
+If all neighbours of $p_i$ are safe in a round, this mean that $p_i$ has received all messages from that round. In this case, $p_i$ in ready to execute the next round of the algorithm. This property ensures that from the point of view of the algorithm that use the synchronizer the network behaves as a synchronous communication system when really its an asynchronous system, this is why it is call a simulation. An easy solution to detect if a process is safe it is to force each process to acknowledge every message that receives. 
+
+The  overhead generate by a Synchronizer $S$ with the acknowledgement mechanism is in the simplest case the double the number of messages of the original algorithm $A$. To compute the total message and time complexity of a synchronous algorithm it is necessary to sum the complexity of $A$ and $S$. $T(S)$ and $M(S)$ denote the time and message complexity respectively for a given synchronizer per round. If the synchronizer require an initialization phase (for instance, the Beta synchronizer used in this project) $T_{init}(S)$ and $M_{init}(S)$ express the message and time complexity of the initialization phase. The notation for the time and message complexity of the algorithm $A$ are $M(A)$ and $T(A)$. The total message complexity is then expressed by the equation \ref{ec:mess} and the time complexity by the equation \ref{ec:time}. The initialization phase only needs to be done one time for each topology, for this reason it is more interesting the overheads $T(S)$ and $M(S)$.
+
+
+\begin{equation}
+\label{ec:mess}
+ T_{tot} = T_{init}(S) + T(A)(1+T(S)) 
+\end{equation}
+
+\begin{equation}
+\label{ec:time}
+M_{tot} = M_{init}(S) + M(A) + T(A)M(S) 
+\end{equation}
+
+
+The two synchronizers presented in the next section are denoted Synchronizer $\alpha$ and Synchronizer $\beta$, which are a generalisation of a technique proposed by Gallager in \cite{gallager1982distributed}. These two synchronizer present a trade off between messages and time complexity. Synchronizer $\alpha$ is efficient in time but produce a significant overhead in message, while synchronizer $\beta$ has a better performance in communication but it is worse in time complexity.  
+
+
+
+\subsection{Alpha Synchronizer}
+
+One design challenge with synchronizer is that there are no bounds on messages delay, in consequence, a process cannot detect when is safe just waiting until receive all messages because it will not know when all messages are receive. The Alpha synchronizer, proposed is \cite{awerbuch1985complexity} use the acknowledgement mechanism to solve this problem. 
+
+The code for each process for Synchronizer $\alpha$ 
+
+
+
+\begin{algorithm}
+ \caption{Alpha Synchronizer, code for $p_i$ from $i = 1$ to $N$}
+ \label{algorithm:alpha} 
+
+\SetAlgoNoLine
+
+Initially round = 0 and \newline
+\textit{buffer[r], safe[r]} and \textit{ack-missing[r]} are empty for all $r \geq 1$ \newline
+
+\textbf{When} \textit{Synch-}$send_i$ (S) occurs:\newline
+$round = round + 1$ \newline
+\textit{ack-missing[round]} = {$j:p_j$ is a recipient of a message in S} \newline
+enable \textit{Asynch-}$send_i(<m,round>)$  to $p_j$, for each $m \in S$ with recipient $p_j$ \newline
+
+\textbf{When} \textit{Asynch-}$recv_i(<ack,r>)$ from $p_j$ occurs: \newline
+add $(m,j)$ to \textit{buffer[r]} \newline
+enable-$Asynch-send_i(<ack,r>)$ to $p_j$ \newline
+
+\textbf{When} \textit{Asynch-}$recv_i(<ack,r>)$ from $p_j$ occurs: \newline
+remove \textit{j} from \textit{ack-missing[r]} \newline
+\If{ack-missing[r] = 0}{ 
+enable \textit{Asynch-}$send_i(<safe,r>)$ to all neighbours \newline
+}
+
+\textbf{When} \textit{Asynch-}$recv_i(<safe,r>)$ from $p_j$ occurs: \newline
+add \textit{j} to \textit{safe[r]} \newline
+\If{safe[r] includes all neighbours}{
+  enable \textit{Synch-}$recv_i(buffer[r])$ \newline
+}
+
+\end{algorithm}
+
+\subsection{Beta Synchronizer}
+
+
+
+\begin{algorithm}
+ \caption{Beta Synchronizer, code for $p_i$ from i = 1 to N}
+ \label{algorithm:beta} 
+
+\SetAlgoNoLine
+
+Compute a rooted spanning tree
+Initially round = 0 and \newline
+\textit{buffer[r], safe[r]} and \textit{ack-missing[r]} are empty for all $r \geq 1$ \newline
+
+\textbf{When} \textit{Synch-}$send_i$ (S) occurs:\newline
+$round = round + 1$ \newline
+\textit{ack-missing[round]} = {$j:p_j$ is a recipient of a message in S} \newline
+enable \textit{Asynch-}$send_i(<m,round>)$  to $p_j$, for each $m \in S$ with recipient $p_j$ \newline
+
+\textbf{When} \textit{Asynch-}$recv_i(<ack,r>)$ from $p_j$ occurs: \newline
+add $(m,j)$ to \textit{buffer[r]} \newline
+enable-$Asynch-send_i(<ack,r>)$ to $p_j$ \newline
+
+\textbf{When} \textit{Asynch-}$recv_i(<ack,r>)$ from $p_j$ occurs: \newline
+remove \textit{j} from \textit{ack-missing[r]} \newline
+\If{ack-missing[r] = 0}{ 
+enable \textit{Asynch-}$send_i(<safe,r>)$ my parent in the spanning tree \newline
+}
+\If{$p_i$ is the root}{ 
+enable \textit{Asynch-}$send_i(<go,r>)$ all $p_i$ children in the spanning tree \newline
+}
+
+\textbf{When} \textit{Asynch-}$recv_i(<go,r>)$ from $p_j$ occurs: \newline
+  enable \textit{Synch-}$recv_i(buffer[r])$ \newline
+  enable \textit{Asynch-}$send_i(<go,r>)$ all $p_i$ children in the spanning tree \newline
+
+\end{algorithm}
