@@ -80,7 +80,7 @@ An algorithm terminates w.h.p. (with high probability) within $O(t)$ time if it 
 
 \end{definition}
 
- Message complexity depends on the number of processes which are active in each phase and its denoted by $O(m)$ in \cite{luby1986simple}. With high probability $(1-1/n)$, the Luby's algorithm finishes  $4\log N$ round. The time complexity demonstration is omitted FOR THE MOMENT.
+ Message complexity depends on the number of processes which are active in each phase and its denoted by $O(m)$ in \cite{luby1986simple}. With high probability $(1-1/n)$, the Luby's algorithm finishes  $4\log N$ round. 
 
 % \theoremstyle{theorem}
 \begin{theorem}
@@ -110,7 +110,7 @@ Algorithm \ref{algorithm:luby-mis} computes a maximal independent set for any gr
 The algorithm \ref{algorithm:main-mis} is another randomized distributed algorithm and was proposed by Yves \cite{yves2009optimal}. This algorithm is used for the simulations in this project. The rounds can be split into 2 phases for simplicity. In each phase, each process chooses a random value, send to its neighbours and wait to receive the value from all its neighbours. If the process has the maximum value, the join the set and output in. In the second phase, if the process decided to join the $MIS$, then send messages to all its actives neighbours. If the process receives a message from one neighbour, decide not join the MIS and output out. At the end of this phase, every process that made a decision about join or not the \textit{MIS} become inactive for the next rounds.
 
 \begin{algorithm}
- \caption{MIS Algorithm, code for each process $p_i$ from i = 1 to N}
+ \caption{MIS Algorithm, code for each process $p_i$ from $i = 1$ to $N$}
  \label{algorithm:main-mis} 
 
 \SetAlgoNoLine
