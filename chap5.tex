@@ -1,10 +1,10 @@
 \section{System Evaluation}
-
+\label{chap:5}
 \subsection{Evaluation Criteria}
 
 In this section, the results of the simulation are presented. The randomised parallel algorithm proposed in \cite{yves2009optimal} is tested with three synchronization techniques using the simulator described previously. The theoretical bound for this algorithm is known to be $O(\log N)$. The synchronizers time and message complexity were discussed in section \ref{chap:3}. 
 
-HERE INSERT DEFINITION OF TIME AND MESSAGES COMPLEXITY. CHECK IF THERE IS ALREADY IN THE INTRODUCTION.
+The metrics used to measure the complexity of a distributed algorithm are the time and number of messages. The most simple way to measure time in the synchronous model is to count the number of rounds until the algorithm terminates. The message complexity consists in count the total number of messages sent by the processes.
 
  The aim of the simulation is to evaluate the time and message complexity of the algorithm. Additionally, show how the synchronization techniques generate overhead over the synchronous algorithm and present a discussion about the trade off between the techniques based on experimental results.
 
