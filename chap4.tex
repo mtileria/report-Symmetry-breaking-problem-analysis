@@ -1,6 +1,204 @@
 \section{Simulator}
 \label{chap:4}
 
+This section presents the structure of the simulator and a brief tutorial "How to use my project" is included. The simulator was written in Elixir 1.3?. Elixir is a dynamic and functional language designed for building fault tolerant, scalable and maintainable application. Elixir is based on Erlang virtual machine Beam, widely used for building distributed systems. The project includes a topology generator written in python. The topology generator is an open source implementation under MIT licence that was customised for this project. The original code can be found here \url{https://github.com/tcoyze/stochastic-blockmodel}. The repository of the full project can be found in \url{https://github.com/mtileria/SymmetryBreaking} including the modified topology generator. The graphs were plotted using the language R. 
 
 
-\subsection{Code Structure}
+
+\subsection{Simulator Structure}
+
+The simulator is based on the Actor model for concurrent systems. In Elixir, all code run inside lightweight processes that are isolated between each other and can only communicate via messages. Considering the \textit{MIS} problem, every vertex of the graph is mapped to an elixir process that run the same distributed algorithm and the communication channel represent the edges of the graph.  
+
+The project structure is presented below. The two main directories are \textbf{generator} and \textbf{simulator}. The code related to the synchronous simulation and \textit{MIS} are in the simulator directory while the topology generator is in the generator directory. 
+
+
+Inside the simulator directory, the sub directory \textbf{config} is created by default by Mix and contain the project configurations. Mix is a tool for creating, compiling and testing applications in Elixir. The code for the simulator is the \textbf{lib} directory, which includes 3 sub directories (\textbf{global}, \textbf{alpha} and \textbf{beta}), once for each synchronisation technique. 
+
+
+
+\begin{verbatim}
+SymmetryBreaking/
+|
+|--generator
+|  |-- graph
+|  |-- topologies
+|  main.py
+|--simulator
+|  |-- config
+|  |-- files
+|  |-- lib
+|      |-- beta
+|           |-- Beta.ex
+|           |-- Sync_mis_Beta.ex
+|           |-- b_Controller.ex
+|      |-- alpha
+|           |-- Alpha.ex
+|           |-- Sync_mis_Alpha
+|           |-- a_Controller.ex
+|      |-- global
+|           |-- g_mis.ex
+|           |-- GlobalSync.ex
+|  |--results
+|  |--test
+\end{verbatim}
+
+\subsection{MIS with Global Synchronizer}
+ 
+
+The directory \textbf{global} have two files \textbf{g\_mis.ex} and \textbf{GlobalSync.ex}. These files contains the implementation of the \textit{MIS} algorithm and the global synchronizer respectively. The global synchronizer is implemented in the \textbf{GlobalSync} module. The function \textit{start\_nodes n} is the start point of the simulation, \textbf{n} is the number of processes to be spawned. This function is in charge of spawn the processes that are going to run the \textit{MIS} algorithm, henceforth active processes. The first task in the function is to spawn the master process, which is the one that is going to inform the actives processes to run the \textit{MIS} algorithm. Besides that, the master process controls when a new round start and receives output of the processes at the end of the distributed algorithm. Actives processes are spawned according the information in the file  \textbf{N\_nodes.txt}. After that there is a invocation of the function \textbf{add\_edges\_topology n} in which the adjacency's of the vertices are read from another file and the list of neighbours is sent to each active process. The implementation for the global simulation is described with details showing the most important part of the code. These details are omitted in the description of the implementation with Alpha and Beta synchronizer. A \textit{start\_nodes n} is illustrated below.
+
+
+\begin{lstlisting}[frame=single]
+def start_nodes (n) do
+  # create master process
+  master_id = spawn(GlobalSync,
+  :run_master,[GlobalSync.init_master(n)])
+  case :global.register_name(:master,master_id) do
+    :yes -> master_id
+    :no -> :error
+  end
+  # load topology from file and spawn processes
+  stream = File.stream!("N_nodes.txt")
+  p_names = String.split(List.first(Enum.take stream,1))
+  p_ids = for name <- p_names do
+    pid = spawn(MIS,:run, [MIS.init_state(name,
+    master_id)])
+    case :global.register_name(name,pid) do
+      :yes ->
+        pid
+      :no -> :error
+    end
+  end
+  send(master_id,{:add_processes_list,p_ids})
+  add_edges_topology(n)
+ end
+\end{lstlisting}
+
+
+Once the master process had created all processes, it remain waiting for the arrival of messages send by active processes in a recursive function named \textbf{run\_master(state)}. The variable \textbf{state} keeps the information like message counter, active and inactive processes, round counter among others useful information. A part of the code can be seen below. The \textbf{receive do} construction indicate that the process is waiting messages that match with the patterns in the form of $\{:pattern\} \rightarrow$. The function \textbf{start\_mis} send a message to the master process with the pattern $\{:start\_mis\}$. When the master receive that message, does a pattern matching again all options and execute the code of the first pattern that match.  Following this logic, the \textit{:update\_complete} is used to start a new round and the pattern \textit{:kill\_all} finish the simulation sending a kill message the every processes. 
+
+
+\begin{lstlisting}[frame=single]
+def run_master(state) do
+state =
+  receive do
+
+    {:start_mis} ->
+      Enum.each(state.processes, fn(pid) ->
+        send(pid,{:find_mis,:initial})end)
+      state
+
+    {:update_complete} ->
+      if state.count_topology == state.active_size do
+         state = %{state | count_topology: 0}
+         next_round = state.actives
+         state = %{state | actives: []}
+         Enum.each(next_round, fn(pid) -> 
+            send(pid,{:find_mis,:continue})end)
+         state
+      end
+        
+    {:kill_all} ->
+      Enum.each(state.processes, fn(x) -> send x,{:kill} end)
+      Process.exit(self, :exit)
+      
+  end
+  run_master(state)
+
+\end{lstlisting}
+
+The code bellow handle the messages when active processes finish the execution of one round. The first step is count the number of processes that finish the execution, when this number is equal to number of active processes mean that the round is finish. The master process split the network in processes that are part of the \textit{MIS} and the ones that not and count the number of messages generated in that round. Finally if there are still active processes, then send an :update\_topology message to them in other case, the distributed algorithm has end.    
+ 
+ 
+\begin{lstlisting}[frame=single]
+
+    {:complete,mis,active,sender,msg_count} ->
+      state = %{state | count: state.count + 1}
+      {num_msg,sync_overhead} = update_message_counter
+        (state.msg_counter,msg_count,state.round)
+
+      state = put_in(state, [:msg_counter,state.round],
+        {num_msg,sync_overhead})
+
+       state =
+        cond  do
+        active == false && mis == true ->  
+          state = %{state | mis: state.mis ++ [sender]}
+        active == false && mis == false ->
+          state = %{state | to_delete: state.to_delete + 1}
+        true ->  ## node active for next round
+          state = %{state | actives: state.actives ++ [sender]}
+      end
+
+      if state.count == state.active_size do
+        IO.puts("ROUND #{state.round} FINISH!!!)
+        # safe results for round
+        
+        case state.active_size == 0 do
+          true ->
+            IO.puts("\n**** MIS complete ******)
+            # save results for algorithm
+            state
+          false ->
+            # continue next round for actives processes
+            Enum.each(state.actives, fn(pid) ->
+              send(pid,{:update_topology})end)
+              state
+        end
+
+\end{lstlisting}
+
+The algorithm is implemented in the \textbf{MIS} module inside the \textbf{g\_mis.ex} file. The implementation follow the same pattern as the global synchronizer running recursively \textbf{run(state)} function. The process spawned previously is waiting until receiving one message that has a match with a pattern expected. If a message match the pattern $\{:find\_mis\}$, a random value is selected and the process $p_i$ send this value to its neighbours. The pattern $\{:value\}$  activates when the $p_i$ receive a value from one neighbour. If the value generated of $p_i$ is the minimun, then $p_i$ is part of the $MIS$. For every message $p_i$ send an acknowledgement message $\{:ack\}$, and when $p_i$ has received the acknowledgement for all neighbours send a $\{:safe\}$ message. Again, when $p_i$ has receive  $\{:safe\}$ from all its neighbours, inform the master process that it has complete the computation for the current round. The partial implementation of the \textbf{run(state)} is shown bellow. 
+
+\begin{lstlisting}[frame=single]
+
+def run(state) do
+
+
+  state = receive do
+
+    {:find_mis,x} ->  # x = :continue || :initial
+
+    {state | value: :rand.uniform()}
+      Enum.each(state.neighbors, fn (node) ->
+      send(node,{:value,state.value,my_pid})end)
+      state
+
+
+    {:value,value,sender,} ->
+        state = %{state | n_receive: state.n_receive + 1}
+        state = if (state.value < value),
+          do: state = %{state | count: state.count + 1} 
+        if state.n_receive == state.n_size do
+            case state.count == state.n_size do
+               true->  ## I am mis member
+                state = %{state | mis: true}
+               false -> ## All msg receive and not mis member
+                 state = %{state | n_receive: 0}
+        end
+        send(sender,{:ack})
+        state
+
+    {:ack} ->
+      state = %{state | ack: state.ack + 1}
+      if state.ack == state.n_size do
+        notify_neighbors(state.neighbors,{:safe})
+      end
+     state
+
+    {:safe,neighbor_mis} ->
+      state = %{state | safe_count: state.safe_count + 1}
+      if state.safe_count == state.n_size do
+        send(state.master_id,{:complete)
+        state
+    
+   run(state)
+
+\end{lstlisting}
+
+\subsection{MIS with Alpha Synchronizer}
+
+\subsection{MIS with Beta Synchronizer}
+
+\subsection{How to use my program}
+
