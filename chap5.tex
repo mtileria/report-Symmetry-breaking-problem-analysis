@@ -1,7 +1,7 @@
 \section{System Evaluation}
 \label{chap:5}
 
-In this section, the system evaluation is explained in details. The randomised distributed algorithm proposed in \cite{yves2009optimal} is tested with three synchronization techniques explained in section \ref{chap:3}, using the simulator described previously in section \ref{chap:4}. The model for generating the networks topologies and the parameters used are described in this section. The evaluation metrics, hardware and software used for testing and the simulation work flow are also part of this section.  
+In this section, the system evaluation is explained in details. The randomised distributed algorithm proposed in \cite{yves2009optimal} was tested with three synchronization techniques explained in section \ref{chap:3} using the simulator described previously in section \ref{chap:4}. The model for generating random graph for the networks topologies are described in this section. The evaluation metrics, hardware and software used for testing and the simulation workflow are also part of this section.  
 
 % The theoretical bound for this algorithm is known to be $O(\log N)$. The synchronizers time and message complexity were discussed in section \ref{chap:3}. 
 
@@ -9,7 +9,7 @@ In this section, the system evaluation is explained in details. The randomised d
 
 
 
-The metrics used to measure the complexity of a distributed algorithm are time and  messages. The way to measure time in the synchronous model is to count the number of rounds until the algorithm terminates. The message complexity consists in count the total number of messages sent by the processes.
+The metrics used to measure the algorithm are time and  messages complexity. Time complexity  in the synchronous model is measure by counting the number of rounds until the algorithm terminates. Message complexity consists in counting the total number of messages send by the processes.
 
 The aim of the simulation is to evaluate the time and messages complexity of the algorithm. Additionally, show how the synchronization techniques generate overhead over the synchronous algorithm and present a discussion about the trade off between the techniques based on experimental results.
 

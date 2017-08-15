@@ -164,9 +164,8 @@ All these synchronizers require that the entire network participate in the synch
 
 For the simulations in this project, besides the Beta and Alpha Synchronizers, another global synchronization mechanism is used. A master process $M$ is required to control the synchronization between every active process on the network.  Each process must inform $M$ that has finished the computation for the round $r$ and then $M$ is in charge of notifying active processes that are allow to start the $r + 1$ round. This mechanism generates a lot of computation in the master process, however, no unnecessary message is sent by inactive process. 
 
-In the case of the Distributed Maximal Independent Set problem, especially with the algorithms explained in this chapter, this behaviour is desirable because many processes become inactive very quickly. These three techniques are used to simulatate a synchronous communication for the \textit{MIS} algorithm. The analysis of the trade-off among them is presented in section \ref{chap:6}.
+In the case of the Distributed Maximal Independent Set problem, especially with the algorithms explained in this chapter, this behaviour is desirable because many processes become inactive very quickly. These three techniques are used to simulate a synchronous communication for the \textit{MIS} algorithm. The analysis of the trade-off among them is presented in section \ref{chap:6}.
 
-\newpage
 
 
 

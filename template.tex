@@ -1,12 +1,23 @@
 \documentclass[11pt]{article} % do not change this line
 \input{BigDataStyle.txt}      % do not change this line
-\usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,graphicx,caption,hyperref,listings,color}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,graphicx,caption,hyperref,listings,color,xcolor}
 \usepackage[boxed,ruled,vlined,dotocloa,english,onelanguage]{algorithm2e}
 \graphicspath{ {pictures/} }
 \emergencystretch=5mm
 \tolerance=400
 \allowdisplaybreaks[4]
-
+\lstset{language=Erlang,
+morekeywords={def,module,case,do,cond,Process,fn},
+deletekeywords={and,processes,pid,error,round},
+ keywordstyle=\color{blue},
+ escapeinside={<@}{@>}
+}
+\lstdefinestyle{terminal}
+{
+    backgroundcolor=\color{black},
+    basicstyle=\scriptsize\color{white}\ttfamily
+}
+\renewcommand{\lstlistingname}{Code}
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
@@ -18,7 +29,7 @@
 \theoremstyle{definition}
 \newtheorem*{remark}{Remark}
 
-\title{Analysis of Symmetry Breaking Algorithms in Distributed Synchronous Systems}
+\title{Analysis of Symmetry Breaking Algorithms on Distributed Synchronous Systems}
 \author{Marcos Tileria}
 
 \newcommand{\Programme}{MSc Distributed and Networked Systems}
@@ -40,27 +51,27 @@
 
 
 \input{./chap1.tex}
-% \newpage
+ \newpage
 
 
 
 \input{./chap2.tex}
-% \newpage
+ \newpage
 
 \input{./chap3.tex}
-% \newpage
+\newpage
 
 \input{./chap4.tex}
-% \newpage
+ \newpage
 
 \input{./chap5.tex}
-% \newpage
+ \newpage
 
 \input{./chap6.tex}
-% \newpage
+ \newpage
 
 \input{./chap7.tex}
-% \newpage
+ \newpage
 
 
 \bibliographystyle{plain}
