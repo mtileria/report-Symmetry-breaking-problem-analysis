@@ -43,7 +43,7 @@ SymmetryBreaking/
 
 \subsection{MIS with Global Synchronizer}
  
-The implementation of the \textit{MIS} algorithm with the global synchronizer is in the directory \textbf{simulator/lib/global}. The \textbf{MIS} algorithm is in the file \textbf{g\_mis.ex} and file \textbf{g\_controller.ex} contains the module \textbf{GlobalSync} which handle the start and finish of the simulation, also the synchronisation mechanism and store the metrics.
+The implementation of the \textit{MIS} algorithm with the global synchronizer is in the directory \textbf{simulator/lib/global}. The \textit{MIS} algorithm is in the file \textbf{g\_mis.ex} and file \textbf{g\_controller.ex} contains the module \textbf{GlobalSync} which handle the start and finish of the simulation, also the synchronisation mechanism and store the metrics.
 
 In the \textbf{GlobalSync} module, the function \textit{start\_nodes n} is the start point of the simulation, where \textbf{n} is the number of processes to be spawned. This function is in charge of spawn the processes that are going to run the \textit{MIS} algorithm, henceforth active processes. The first task of this function is to spawn the master process, which is the one that it is going to indicate actives processes when to start the algorithm.  Besides that, the master process controls when a new round starts and receives the output of the processes at the end of the algorithm.
 
@@ -155,7 +155,7 @@ end
 
 
 
-The \textbf{MIS} module, in the \textbf{g\_mis.ex} file contains the implementation of the MIS algorithm. The module follows the same logic as the global synchronizer. There is a state of the algorithm and a recursive function \textbf{run(state)} which is waiting for messages. If a message matches the pattern $\{:find\_mis\}$, a random value is selected, and the process $p_i$ send this random value to its neighbours. This messages is received by $p_j$ with the pattern $\{:value\}$. If the value generated of $p_i$ is the smaller of all its neighbour's values, then $p_i$ is part of the $MIS$. For every message $p_i$ send an acknowledge message $\{:ack\}$, and when $p_i$ has received the acknowledgement for all its neighbours, then send a $\{:safe\}$ message to each neighbour. The partial implementation of the \textbf{run(state)} is shown in the code \ref{code:run_global}.
+The \textit{MIS} module, in the \textbf{g\_mis.ex} file contains the implementation of the MIS algorithm. The module follows the same logic as the global synchronizer. There is a state of the algorithm and a recursive function \textbf{run(state)} which is waiting for messages. If a message matches the pattern $\{:find\_mis\}$, a random value is selected, and the process $p_i$ send this random value to its neighbours. This messages is received by $p_j$ with the pattern $\{:value\}$. If the value generated of $p_i$ is the smaller of all its neighbour's values, then $p_i$ is part of the \textit{MIS}. For every message $p_i$ send an acknowledge message $\{:ack\}$, and when $p_i$ has received the acknowledgement for all its neighbours, then send a $\{:safe\}$ message to each neighbour. The partial implementation of the \textbf{run(state)} is shown in the code \ref{code:run_global}.
 
 \begin{lstlisting}[frame=single, columns=fullflexible, mathescape=true, caption= run function for \textit{MIS} , label = code:run_global]
 
@@ -245,7 +245,7 @@ end
 \end{lstlisting}
 
 
-When $p_i$ uses the \textbf{sync\_send} function, it send a message to $alpha_i$ containing a message and the destinations for the round. When $alpha_i$ is safe, then calls the function \textbf{sync\_recv} function to send to $p_i$ the messages store in the buffer. The code \ref{code:sync_call} shows how the \textbf{MIS} algorithm uses the interfaces for the synchronous simulation. The module Alpha implement the algorithm \ref{algorithm:alpha} explained in section \ref{chap:3}.
+When $p_i$ uses the \textbf{sync\_send} function, it send a message to $alpha_i$ containing a message and the destinations for the round. When $alpha_i$ is safe, then calls the function \textbf{sync\_recv} function to send to $p_i$ the messages store in the buffer. The code \ref{code:sync_call} shows how the \textit{MIS} algorithm uses the interfaces for the synchronous simulation. The module Alpha implement the algorithm \ref{algorithm:alpha} explained in section \ref{chap:3}.
 
 \begin{lstlisting}[frame=single, columns=fullflexible, mathescape=true, caption= Synchronous communication by \textit{MIS} algorithm, label = code:sync_call]
 
@@ -322,43 +322,43 @@ After the project is locally stored, one may choose which simulation execute. Th
 \begin{lstlisting}[style=terminal]
 
 marcos@mtileriaPC ~/simulator/lib/global \$ iex
-iex(1)> c "GlobalSync.ex"
+iex(1)> c "g_controller.ex"
 [GlobalSync]
 iex(2)> c "g_mis.ex"     
 [MIS]
-iex(3)> GlobalSync.start_nodes(8192)
+iex(3)> G_controller.start_nodes(1024)
 :ok
-iex(4)> GlobalSync.start_mis        
+iex(4)> G_controller.start_mis        
 start_mis/0    
-iex(4)> GlobalSync.start_mis
-{:start_mis}
+iex(4)> G_controller.finish_simulation
+
 
 
 \end{lstlisting}
 
- The image \ref{fig:gmis_run} shows the output of the execution of the previous example for 8192 processes. Once the distributed algorithm finish, the function \textbf{finish\_simulation} send a \textbf{:kill} message to each process spawned before. This function needs to be call before start another execution.
+%  The image \ref{fig:gmis_run} shows the output of the execution of the previous example for 8192 processes. Once the distributed algorithm finish, the function \textbf{finish\_simulation} send a \textbf{:kill} message to each process spawned before. This function needs to be call before start another execution.
 
 
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.9 \linewidth, height=5cm]{g_mis_run.png} 
-\caption{Output of the execution of \textit{MIS} algorithm with global synchronizer}
-\label{fig:gmis_run}
-\end{figure}
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=1 \linewidth, height=7cm]{g_mis_run.png} 
+% \caption{Output of the execution of \textit{MIS} algorithm with global synchronizer}
+% \label{fig:gmis_run}
+% \end{figure}
 
-To run algorithm using Alpha or Beta synchronizer the steps are similar. For these synchronizers, three modules should be compiled before running the algorithm, the module for the controller, \textbf{MIS} algorithm and synchronizer. The particular case is Beta because the rooted spanning tree should be constructed before running the algorithm. This is done calling the function \textbf{spanning\_tree}. The steps to execute the algorithm with Alpha and Beta are shown in \ref{code:alpha_exe} and \ref{code:beta_exe} respectively.
+To run algorithm using Alpha or Beta synchronizer the steps are similar. For these synchronizers, three modules should be compiled before running the algorithm, the module for the controller, \textit{MIS} algorithm and synchronizer. The particular case is Beta because the rooted spanning tree should be constructed before running the algorithm. This is done calling the function \textbf{spanning\_tree}. The steps to execute the algorithm with Alpha and Beta are shown in \ref{code:alpha_exe} and \ref{code:beta_exe} respectively.
 
 
 
 \begin{lstlisting}[style=terminal,caption= Example of compiling and executing the algorithm with Alpha, label = code:alpha_exe]
 
 marcos@mtileriaPC ~/simulator/lib/alpha \$ iex
-iex(1)> c "a_Controller.ex"
+iex(1)>c "sync_mis_alpha.ex"
 [A_controller]
 iex(2)> c "a_mis.ex"     
 [MIS]
-iex(2)> c "Alpha.ex"     
+iex(2)> c "alpha.ex"     
 [Alpha]
 iex(3)> A_controller.start_nodes(8192)
 :ok
@@ -378,9 +378,9 @@ iex(2)> c "Beta.ex"
 [Beta]
 iex(3)> B_controller.start_nodes(8192)
 :ok
-iex(4)> B_controller.start_mis        
-start_mis/0    
-{:start_mis}
+iex(4)> B_controller.spanning_tree       
+Spanning tree complete   
+iex(5)> B_controller.start_mis 
 
 \end{lstlisting}
 

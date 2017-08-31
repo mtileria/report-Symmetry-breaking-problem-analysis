@@ -14,7 +14,7 @@ The fundamental symmetry breaking problems on graph include the maximal matching
 \theoremstyle{definition}
 \begin{definition}
 
-Given an undirected graph $G = (V,E)$, a Maximal Independent Set \textbf{MIS} is a set of vertices $S \subseteq V$ if it satisfied the following properties:   
+Given an undirected graph $G = (V,E)$, a Maximal Independent Set \textit{MIS} is a set of vertices $S \subseteq V$ if it satisfied the following properties:   
 
 \begin{enumerate}
   \item the set MIS is an independent set meaning that no two vertices $v,u \in S$ are adjacent,
@@ -136,6 +136,7 @@ Message complexity depends on the number of edges of the graphs for both algorit
  Until now, these two algorithms are faster than the best deterministic algorithms for general graphs. There have been some improvements but not for general graphs. For instance, Panconesi \textit{et al.} \cite{panconesi1996complexity} proposed a $O(\Delta + log^* N)$ algorithm for specific graphs with bounded degree, however, the original algorithms are still faster when the running time is expressed as a function of $N$ and for any type of graph.
  
 
+The experimental part of this dissertation consists in measure time and message complexity of the \textit{MIS} algorithm on synchronous systems. Besides that, the section \ref{chap:6} also presents interesting properties about the solution of the algorithm and the evolution of the network topology. For instance the number of nodes that are in the maximal independent set,  the number of actives processes per round, an analysis of the diameter of the components of the graph in the different rounds. The diameter of the graph is the length of the shortest path between any two vertices. Initially, the graph consists of one connected component, but as the rounds are executed, the connected graph becomes a set of disconnected components.  It is interesting to understand how the diameter of the graph components changes in different rounds for the studied graphs topologies.
+ 
  
 
-% . This algorithm operates in synchronous rounds. In line 2, every process select a random number to in order to break the symmetry with its neighbours, line 3 makes sure that if a vertex v join the MIS, no other neighbour of v join the MIS at the same time, this is true because the execution  occurs in rounds. the line 4 makes sure that any vertex that has a neighbour in the MIS, join the MIS at any point. 
